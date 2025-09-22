@@ -1,3 +1,15 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  DOCKER_IMAGE_NAME: tata-java-simple-api
+  DOCKERHUB_USERNAME: rsannareddy
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,6 +30,15 @@ jobs:
 
       - name: Run tests
         run: ./mvnw clean test
+
+      - name: Generate test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Maven Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -71,3 +92,31 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update Docker Hub description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
+          short-description: "Simple Java Spring Boot API"
+          readme-filepath: ./README.md
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    name: Security Scan
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.39.0
+        with:
+          image-ref: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
