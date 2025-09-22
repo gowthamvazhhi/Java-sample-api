@@ -2,7 +2,6 @@
 
 A simple Java Spring Boot REST API with basic endpoints.
 
-
 ## Endpoints
 - `GET /api/hello` - Returns a greeting message with timestamp
 - `GET /api/health` - Returns health status
