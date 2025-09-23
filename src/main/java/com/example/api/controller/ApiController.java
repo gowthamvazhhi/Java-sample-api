@@ -36,7 +36,7 @@ public class ApiController {
         logger.info("Received request to /api/hello endpoint");
         try {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Hello, Worrameshld!");
+            response.put("message", "Hello, World!");
             response.put("timestamp", LocalDateTime.now().format(TIMESTAMP_FORMATTER));
 
             logger.debug("Returning response: {}", response);
