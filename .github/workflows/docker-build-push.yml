@@ -8,7 +8,7 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: tata-java-simple-api
-  DOCKERHUB_USERNAME: rsannareddy
+  DOCKERHUB_USERNAME: gautigowtham07
 
 jobs:
   build-and-push:
