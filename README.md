@@ -9,3 +9,4 @@ A simple Java Spring Boot REST API with basic endpoints.
 ## Usage
 ```bash
 docker run -p 8080:8080 rsannareddy/tata-java-simple-api:latest
+
